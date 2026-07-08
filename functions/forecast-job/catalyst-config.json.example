@@ -1,0 +1,12 @@
+{
+  "deployment": {
+    "name": "forecast-job",
+    "stack": "node20",
+    "type": "job",
+    "env_variables": {},
+    "memory": 256
+  },
+  "execution": {
+    "main": "index.js"
+  }
+}

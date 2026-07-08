@@ -1,0 +1,21 @@
+{
+  "deployment": {
+    "name": "chat-job",
+    "stack": "node20",
+    "type": "job",
+    "env_variables": {
+      "QUICKML_LLM_ENDPOINT": "https://api.catalyst.zoho.in/quickml/v1/project/<YOUR_PROJECT_ID>/glm/chat",
+      "QUICKML_RAG_ENDPOINT": "",
+      "QUICKML_RAG_DOCUMENT_ID": "",
+      "QUICKML_PROJECT_ID": "<YOUR_PROJECT_ID>",
+      "QUICKML_ORG_ID": "<YOUR_ORG_ID>",
+      "QUICKML_CLIENT_ID": "<YOUR_SELF_CLIENT_ID>",
+      "QUICKML_CLIENT_SECRET": "<YOUR_SELF_CLIENT_SECRET>",
+      "QUICKML_REFRESH_TOKEN": "<YOUR_REFRESH_TOKEN>"
+    },
+    "memory": 512
+  },
+  "execution": {
+    "main": "index.js"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "functions": {
+    "source": "functions",
+    "targets": [
+      "api",
+      "seed-job",
+      "forecast-job",
+      "chat-job"
+    ]
+  },
+  "client": {
+    "source": "client"
+  },
+  "slate": [
+    {
+      "name": "ksp-crime-intel-web",
+      "source": "client"
+    }
+  ]
+}
