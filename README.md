@@ -1,6 +1,8 @@
 # KSP Crime Intelligence Platform
 ### Karnataka State Police — Datathon 2026 | Problem Statement 1
 
+**Live app:** https://ksp-crime-intel-web-thybuzxq.onslate.in
+
 An agentic, bilingual (English/Kannada), conversational AI and crime analytics platform for investigators, analysts, and senior officers of the Karnataka State Police — built to run entirely on Zoho Catalyst per the hackathon's mandatory deployment requirement.
 
 **Status: All 11 modules functional, including a working end-to-end AI Assistant (text + voice, English/Kannada) against a live seeded dataset of 250 synthetic FIR cases.**
@@ -8,34 +10,35 @@ An agentic, bilingual (English/Kannada), conversational AI and crime analytics p
 ---
 
 ## What's in this repository
-ksp-datathon-2026/
-├── catalyst.json                  # Root Catalyst project config (functions, client, slate)
-├── .env.example                   # Environment variables you need to fill in
-├── database/
-│   ├── schema.sql                 # Full DDL reference — ER-diagram tables + extended schema
-│   └── seed-data-generator/       # Synthetic FIR data generator (no real KSP data used)
-├── functions/
-│   ├── api/                       # Main Catalyst Advanced I/O function (Express app, 30s limit)
-│   │   └── src/
-│   │       ├── config/            # Constants, DB helpers
-│   │       ├── middleware/        # Auth, RBAC, audit, rate-limit, validation, errors
-│   │       ├── repositories/      # ZCQL data access layer
-│   │       ├── services/          # Business logic (case, accused, victim, network, financial, risk, forecast, chat)
-│   │       ├── ai/                # QuickML LLM client, RAG client (unconfigured), prompts
-│   │       └── routes/            # Express route handlers, one file per module
-│   ├── seed-job/                  # Job Function — seeds the database (15-min budget)
-│   ├── forecast-job/               # Job Function — crime forecast (cron not yet scheduled in console)
-│   └── chat-job/                  # Job Function — runs the AI Assistant's LLM call async
-│                                   # (duplicated, not shared, from functions/api/src — see Design notes)
-├── client/                        # React + TypeScript + Vite + Tailwind frontend (Catalyst Slate)
-│   └── src/
-│       ├── pages/                 # One page per module (Dashboard, FIR Search, AI Assistant, etc.)
-│       ├── components/            # Shared UI (Layout, Sidebar, Navbar, RiskBadge, StatCard)
-│       ├── contexts/               # AuthContext, LanguageContext
-│       └── services/api.ts        # Typed API client
-└── docs/
-├── deployment-guide.md
-└── api-spec.md
+
+    ksp-datathon-2026/
+    ├── catalyst.json                  # Root Catalyst project config (functions, client, slate)
+    ├── .env.example                   # Environment variables you need to fill in
+    ├── database/
+    │   ├── schema.sql                 # Full DDL reference — ER-diagram tables + extended schema
+    │   └── seed-data-generator/       # Synthetic FIR data generator (no real KSP data used)
+    ├── functions/
+    │   ├── api/                       # Main Catalyst Advanced I/O function (Express app, 30s limit)
+    │   │   └── src/
+    │   │       ├── config/            # Constants, DB helpers
+    │   │       ├── middleware/        # Auth, RBAC, audit, rate-limit, validation, errors
+    │   │       ├── repositories/      # ZCQL data access layer
+    │   │       ├── services/          # Business logic (case, accused, victim, network, financial, risk, forecast, chat)
+    │   │       ├── ai/                # QuickML LLM client, RAG client (unconfigured), prompts
+    │   │       └── routes/            # Express route handlers, one file per module
+    │   ├── seed-job/                  # Job Function — seeds the database (15-min budget)
+    │   ├── forecast-job/              # Job Function — crime forecast (cron not yet scheduled in console)
+    │   └── chat-job/                  # Job Function — runs the AI Assistant's LLM call async
+    │                                   # (duplicated, not shared, from functions/api/src — see Design notes)
+    ├── client/                        # React + TypeScript + Vite + Tailwind frontend (Catalyst Slate)
+    │   └── src/
+    │       ├── pages/                 # One page per module (Dashboard, FIR Search, AI Assistant, etc.)
+    │       ├── components/            # Shared UI (Layout, Sidebar, Navbar, RiskBadge, StatCard)
+    │       ├── contexts/              # AuthContext, LanguageContext
+    │       └── services/api.ts        # Typed API client
+    └── docs/
+        ├── deployment-guide.md
+        └── api-spec.md
 
 ## How the problem statement maps to this codebase
 
@@ -62,11 +65,11 @@ ksp-datathon-2026/
 - Catalyst CLI: `npm install -g zcatalyst-cli`
 
 ### 2. Set up the Catalyst project
-```bash
-catalyst init
-# select: this repo's root as project directory
-# select components: Functions (Advanced I/O + Job), Data Store, Authentication, Slate
-```
+
+    catalyst init
+    # select: this repo's root as project directory
+    # select components: Functions (Advanced I/O + Job), Data Store, Authentication, Slate
+
 After running `catalyst functions:add` for any new function, always run `cat catalyst.json` to confirm the `functions.targets` array actually includes it — the CLI sometimes reports success without updating this file.
 
 ### 3. Create the database tables
@@ -77,39 +80,36 @@ Copy `.env.example` to `.env` and fill in:
 - Catalyst project ID / org ID (Catalyst Console → Project Settings)
 - QuickML LLM endpoint URL, and a Self Client's `client_id`/`client_secret`/`refresh_token` from `api-console.zoho.in` (Catalyst's newer console-managed "Connections" feature is not compatible with this SDK version — see Design notes)
 
-Set these same values in **both** the Catalyst Console (Serverless → Functions → [function] → Configuration) **and** each function's local `catalyst-config.json` — the local file overwrites the console on every deploy, so keep them in sync manually.
+Set these same values in **both** the Catalyst Console (Serverless → Functions → [function] → Configuration) **and** each function's local `catalyst-config.json` — the local file overwrites the console on every deploy, so keep them in sync manually. Each function folder has a `catalyst-config.json.example` showing the required shape.
 
 ### 5. Seed the database
-```bash
-cd functions/seed-job
-npm install
-catalyst job:execute seed-job   # or trigger from the Catalyst console
-```
+
+    cd functions/seed-job
+    npm install
+    catalyst job:execute seed-job   # or trigger from the Catalyst console
+
 This inserts all lookup tables, synthetic FIRs (default 250, tuned to stay under Catalyst's dev-environment record caps), and a baseline RBAC permission matrix.
 
 ### 6. Set up your own AppUser
 The seed job does not create a Catalyst-authenticated login for you. After enabling Embedded Authentication in the console and signing up once, insert a matching `Employee` row and an `AppUser` row linking `CatalystAuthID` to your Catalyst Auth user_id, with `RoleID = 7` (Admin).
 
 ### 7. Run the backend locally
-```bash
-cd functions/api
-npm install
-catalyst serve
-```
+
+    cd functions/api
+    npm install
+    catalyst serve
 
 ### 8. Run the frontend locally
-```bash
-cd client
-npm install
-cp ../.env.example .env
-npm run dev
-```
+
+    cd client
+    npm install
+    cp ../.env.example .env
+    npm run dev
 
 ### 9. Deploy
-```bash
-catalyst deploy --only functions:api,functions:chat-job,functions:seed-job,functions:forecast-job
-catalyst deploy slate
-```
+
+    catalyst deploy --only functions:api,functions:chat-job,functions:seed-job,functions:forecast-job
+    catalyst deploy slate
 
 ## Design notes worth knowing before you extend this
 
